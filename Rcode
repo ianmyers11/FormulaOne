@@ -1,0 +1,403 @@
+# loading packages
+library(tidyverse)
+library(readxl)
+library(writexl)
+
+#---------------------------------------------------------------------------------------------------------
+
+#importing Formula 1 Datasets 
+circuits <- read_excel("~/Desktop/329_final_project/excelf1_datasets/circuits.xlsx")
+races <- read_excel("~/Desktop/329_final_project/excelf1_datasets/races.xlsx", 
+                    col_types = c("text", "text", "numeric", 
+                                  "text", "text", "date", "numeric"))
+pit_stops <- read_excel("~/Desktop/329_final_project/excelf1_datasets/pit_stops.xlsx", 
+                        col_types = c("text", "text", "numeric", 
+                                      "numeric", "numeric", "numeric", 
+                                      "numeric"))
+lap_times <- lap_times <- read_excel("~/Desktop/329_final_project/excelf1_datasets/lap_times.xlsx", 
+                                     col_types = c("text", "text", "numeric", 
+                                                   "numeric", "numeric", "numeric"))
+constructors <- read_excel("~/Desktop/329_final_project/excelf1_datasets/constructors.xlsx", 
+                           col_types = c("text", "text", "text", 
+                                         "text"))
+drivers <- read_excel("~/Desktop/329_final_project/excelf1_datasets/drivers.xlsx", 
+                      col_types = c("text", "text", "text", 
+                                    "text", "text", "date", "text"))
+
+constructor_results <- read_excel("~/Desktop/329_final_project/excelf1_datasets/constructor_results.xlsx", 
+                                 col_types = c("text", "text", "text", 
+                                               "numeric"))
+
+driver_standings <- read_excel("~/Desktop/329_final_project/excelf1_datasets/driver_standings.xlsx", 
+                               col_types = c("text", "text", "text", 
+                                             "numeric", "text", "text", "numeric"))
+
+qualifying <- read_excel("~/Desktop/329_final_project/excelf1_datasets/qualifying.xlsx", 
+                         col_types = c("text", "text", "text", 
+                                       "text", "text", "numeric", "numeric", 
+                                       "numeric", "numeric"))
+results <- read_excel("~/Desktop/329_final_project/excelf1_datasets/results.xlsx", 
+                      col_types = c("text", "text", "text", 
+                                    "text", "text", "numeric", "text", 
+                                    "text", "numeric", "numeric", "numeric", 
+                                    "numeric", "numeric", "numeric", 
+                                    "numeric", "numeric", "numeric", 
+                                    "text"))
+constructor_standings <- read_excel("~/Desktop/329_final_project/excelf1_datasets/constructor_standings.xlsx", 
+                                    col_types = c("text", "text", "text", 
+                                                  "numeric", "numeric", "text", "text"))
+
+status <- read_excel("~/Desktop/329_final_project/excelf1_datasets/status.xlsx", 
+                     col_types = c("text", "text"))
+
+#---------------------------------------------------------------------------------------------------------
+# Number of Races on each circuit
+  # DONE IN TABLEAU
+
+#---------------------------------------------------------------------------------------------------------
+# Comparing GDP of Countries 
+  # DONE IN TABLEAU & EXCEL
+
+#---------------------------------------------------------------------------------------------------------
+# Comparing Lap Times from 1996-2020
+    # Using tracks that have data from all the years
+merged_laps <- merge(races, lap_times, by="raceId")
+
+#Monaco
+merged_laps %>% 
+  filter(name %in% "Monaco Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagelaptime = mean(milliseconds)) -> merged_laps_monaco
+
+merged_laps_monaco %>% 
+  mutate(race_name = "monaco") -> monaco_laptimes
+
+#Australia
+merged_laps %>% 
+  filter(name %in% "Australian Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagelaptime = mean(milliseconds)) -> merged_laps_aus
+
+merged_laps_aus %>% 
+  mutate(race_name = "australia") -> aus_laptimes
+
+#British
+merged_laps %>% 
+  filter(name %in% "British Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagelaptime = mean(milliseconds)) -> merged_laps_british
+
+merged_laps_british %>% 
+  mutate(race_name = "britian") -> british_laptimes
+
+#Italian
+merged_laps %>% 
+  filter(name %in% "Italian Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagelaptime = mean(milliseconds)) -> merged_laps_italian
+
+merged_laps_italian %>% 
+  mutate(race_name = "italy") -> italian_laptimes
+
+#Hungarian
+merged_laps %>% 
+  filter(name %in% "Hungarian Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagelaptime = mean(milliseconds)) -> merged_laps_hung
+
+merged_laps_hung%>% 
+  mutate(race_name = "hungary") -> hung_laptimes
+
+#Spanish
+merged_laps %>% 
+  filter(name %in% "Spanish Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagelaptime = mean(milliseconds)) -> merged_laps_spain
+
+merged_laps_spain%>% 
+  mutate(race_name = "spain") -> spain_laptimes
+
+#Brazil
+merged_laps %>% 
+  filter(name %in% "Brazilian Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagelaptime = mean(milliseconds)) -> merged_laps_brazil
+
+merged_laps_brazil%>% 
+  mutate(race_name = "spain") -> brazil_laptimes
+
+# merge together
+spain_laptimes %>% 
+  full_join(british_laptimes) %>% 
+  full_join(hung_laptimes) %>% 
+  full_join(italian_laptimes) %>% 
+  full_join(aus_laptimes) %>% 
+  full_join(monaco_laptimes) %>% 
+  full_join(brazil_laptimes) -> joined_laptimes
+
+write.csv(joined_laptimes, "joined_laptimes.csv")
+
+#---------------------------------------------------------------------------------------------------------
+# Comparing Pit-Stop Times Over Time 2012-2019
+merged_pits <- merge(races, pit_stops, by="raceId")
+
+# Monaco
+merged_pits %>% 
+  filter(name %in% "Monaco Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_monaco
+
+merged_pits_monaco%>% 
+  mutate(race_name = "monaco") -> monaco_pittimes
+
+# Australia
+merged_pits %>% 
+  filter(name %in% "Australian Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_aus
+
+merged_pits_aus%>% 
+  mutate(race_name = "australia") -> aus_pittimes
+
+# British
+merged_pits %>% 
+  filter(name %in% "British Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_british
+
+merged_pits_british%>% 
+  mutate(race_name = "britian") -> british_pittimes
+
+# Italian
+merged_pits %>% 
+  filter(name %in% "Italian Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_italian
+
+merged_pits_italian%>% 
+  mutate(race_name = "italian") -> italian_pittimes
+
+# Hungarian
+merged_pits %>% 
+  filter(name %in% "Hungarian Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_hung
+
+merged_pits_hung%>% 
+  mutate(race_name = "hungary") -> hung_pittimes
+
+# Spanish
+merged_pits %>% 
+  filter(name %in% "Spanish Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_spain
+
+merged_pits_spain%>% 
+  mutate(race_name = "spain") -> spain_pittimes
+
+# Brazil
+merged_pits %>% 
+  filter(name %in% "Brazilian Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_brazil
+
+merged_pits_brazil%>% 
+  mutate(race_name = "brazil") ->brazil_pittimes
+
+# Bahrain
+merged_pits %>% 
+  filter(name %in% "Bahrain Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_bahrain
+
+merged_pits_bahrain%>% 
+  mutate(race_name = "bahrain") -> bahrain_pittimes
+
+# Belgian
+merged_pits %>% 
+  filter(name %in% "Belgian Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_belgian
+
+merged_pits_belgian%>% 
+  mutate(race_name = "belgium") -> belgian_pittimes
+
+# Canada
+merged_pits %>% 
+  filter(name %in% "Canadian Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_canada
+
+merged_pits_canada%>% 
+  mutate(race_name = "canada") -> canada_pittimes
+
+# United States
+merged_pits %>% 
+  filter(name %in% "United States Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_us
+
+merged_pits_us%>% 
+  mutate(race_name = "united states") -> us_pittimes
+
+# Austrian
+merged_pits %>% 
+  filter(name %in% "Austrian Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_austrian
+
+merged_pits_austrian%>% 
+  mutate(race_name = "austria") -> austrian_pittimes
+
+# Shanghai
+merged_pits %>% 
+  filter(name %in% "Chinese Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_china
+
+merged_pits_china%>% 
+  mutate(race_name = "china") -> china_pittimes
+
+# Japan
+merged_pits %>% 
+  filter(name %in% "Japanese Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_japan
+
+merged_pits_japan%>% 
+  mutate(race_name = "japan") -> japan_pittimes
+
+# Abu Dhabi
+merged_pits %>% 
+  filter(name %in% "Abu Dhabi Grand Prix") %>% 
+  group_by(year) %>% 
+  summarize(averagepittime = mean(milliseconds)) -> merged_pits_abu
+
+merged_pits_abu%>% 
+  mutate(race_name = "abu dhabi") -> abu_pittimes
+
+spain_pittimes %>% 
+  full_join(british_pittimes) %>% 
+  full_join(hung_pittimes) %>% 
+  full_join(italian_pittimes) %>% 
+  full_join(aus_pittimes) %>% 
+  full_join(monaco_pittimes) %>% 
+  full_join(brazil_pittimes) %>% 
+  full_join(bahrain_pittimes) %>% 
+  full_join(belgian_pittimes) %>% 
+  full_join(canada_pittimes) %>% 
+  full_join(us_pittimes) %>% 
+  full_join(austrian_pittimes) %>% 
+  full_join(china_pittimes) %>% 
+  full_join(japan_pittimes) %>% 
+  full_join(abu_pittimes) -> joined_pittimes
+
+write.csv(joined_pittimes, "joined_pittimes.csv")
+#---------------------------------------------------------------------------------------------------------
+
+# Average Fastest Lap Speed
+
+merge(x = results[,c("driverId", "raceId","fastestLapSpeed")], y = races, by = "raceId", all.x=TRUE) -> fastestlapspeed
+
+write.csv(fastestlapspeed, "four.csv")
+#---------------------------------------------------------------------------------------------------------
+# Which Countries are most successful in Formula 1
+    # start with Drivers
+drivers$full_name <- paste(drivers$forename, drivers$surname)
+
+merge(x = results[,c("driverId", "raceId", "position")], y = drivers[,c("driverId", "nationality", "full_name")], by = "driverId", all.x=TRUE) -> drivers_results
+merge(x = drivers_results, y = races[,c("raceId", "name", "year")], by = "raceId", all.x=TRUE) -> drivers_results_merged
+
+drivers_results_merged %>% 
+  filter(position %in% "1") -> drivers_results_merged_filtered
+
+write.csv(drivers_results_merged_filtered, "drivers_results.csv")
+
+# Now with constructors
+merge(x = constructor_standings[,c("constructorId", "position", "wins")], y = constructors[,c("constructorId", "nationality", "name" )], by = "constructorId", all.x=TRUE) -> constructor_results
+
+constructor_results%>% 
+  filter(position %in% "1") -> constructor_results_filtered
+
+write.csv(onstructor_results_filtered, "six_first.csv")
+#---------------------------------------------------------------------------------------------------------
+
+# Comparing poles & race wins
+    # finding poles
+qualifying %>% 
+  rename (start_position = position) 
+
+names(qualifying)[names(qualifying) == "position"] <- "start_position"
+
+merge(x = qualifying[,c("driverId", "raceId", "start_position")], y = drivers[,c("driverId", "nationality", "full_name")], by = "driverId", all.x=TRUE) -> qualifying_merged
+merge(x = qualifying_merged, y = races[,c("raceId", "name", "year")], by = "raceId", all.x=TRUE) -> qualifying_merged_2
+
+qualifying_merged_2 %>% 
+  filter(start_position %in% "1") -> qualifying_filtered1
+
+merge(x = qualifying_filtered1, y = results[,c("driverId", "position")], by = "driverId", all.x=TRUE) -> qualifying_merged_3
+
+qualifying_merged_3 %>% 
+  filter(position %in% "1") -> qualifying_filtered2
+
+write.csv(qualifying_filtered1, "qualifying_merged.csv")
+#---------------------------------------------------------------------------------------------------------
+
+# Podiums Drivers
+drivers_results_merged %>% 
+  filter(position %in% c("1","2","3")) -> podium1
+
+write.csv(podium1, "race_podium.csv")
+#---------------------------------------------------------------------------------------------------------
+
+# Podiums Constructors
+
+constructor_results%>% 
+  filter(position %in% c("1","2","3")) -> podium_constructors
+
+write.csv(podium_constructors, "race_podium_constructors.csv")
+#---------------------------------------------------------------------------------------------------------
+
+# DNFs Analysis
+    #retirement overall
+results %>% 
+  filter(positionText %in% "R")  -> retired
+
+merge(x = retired[,c("driverId", "positionText", "raceId")], y = drivers[,c("driverId", "full_name")], by = "driverId", all.x=TRUE) -> retired_merged
+merge(x = retired_merged, y = races[,c("raceId", "year")], by = "raceId", all.x=TRUE) -> retired_merged_year
+
+write.csv(retired_merged_year, "retired.csv")
+
+    # retirement by cause
+merge(x = retired[,c("driverId", "positionText", "raceId", "statusId")], y = drivers[,c("driverId", "full_name")], by = "driverId", all.x=TRUE) -> causes
+merge(x = causes, y = races[,c("raceId", "year")], by = "raceId", all.x=TRUE) -> causes_merged
+merge(x = causes_merged, y = status[,c("statusId", "status")], by = "statusId", all.x=TRUE) -> causes_merged_status
+
+write.csv(causes_merged_status, "casuesforretirement.csv")
+#---------------------------------------------------------------------------------------------------------
+
+# retirements compared to total races percentages
+results$driverId <- as.character(results$driverId)
+results$count_races <- as.numeric(ave(results$driverId, results$driverId, FUN = length))
+
+retired$driverId <- as.character(retired$driverId)
+retired$count_retired <- as.numeric(ave(retired$driverId, retired$driverId, FUN = length))
+ 
+merge(x = retired[,c("raceId", "driverId", "count_retired", "statusId")], y = results[,c("driverId", "count_races")], by = "driverId", all.x=TRUE) -> comparison_1
+merge(x = comparison_1, y = drivers[,c("driverId","full_name")], by = "driverId", all.x=TRUE) -> comparison_2
+merge(x = comparison_2, y = races[,c("raceId","year")], by = "raceId", all.x=TRUE) -> comparison_3
+
+comparison_3 %>%
+  mutate(average_races_retired = (count_retired/count_races)) -> comparison_4
+
+write.csv(comparison_4, "avg_races_retired.csv")
+#---------------------------------------------------------------------------------------------------------
+
+# retirements by team (maybe also looking at issues caused by car failures )
+
+merge(x = retired[,c("constructorId", "positionText", "raceId", "statusId")], y = constructors[,c("constructorId", "name")], by = "constructorId", all.x=TRUE) -> constructor_causes
+merge(x = constructor_causes, y = races[,c("raceId", "year")], by = "raceId", all.x=TRUE) -> constructor_causes_merged
+merge(x = constructor_causes_merged, y = status[,c("statusId", "status")], by = "statusId", all.x=TRUE) -> constructor_causes_merged_status
+
+write.csv(constructor_causes_merged_status, "casuesforretirement_costructor.csv")
+#---------------------------------------------------------------------------------------------------------
